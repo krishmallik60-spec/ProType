@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ProType - Minimalist Typing</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+        }
+    </script>
+    <link href="css/styles.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+</head>
+<body class="bg-gray-100 dark:bg-[#111] text-gray-800 dark:text-gray-300 min-h-screen font-['JetBrains_Mono'] flex flex-col selection:bg-none relative transition-colors duration-300">
+    
+    <header class="flex flex-wrap justify-between items-center py-3 px-6 bg-white/80 dark:bg-[#111]/80 backdrop-blur top-0 sticky z-40 border-b border-gray-200 dark:border-transparent transition-colors">
+        <div class="flex flex-col gap-2">
+            <h1 class="text-2xl font-bold text-gray-900 dark:text-gray-100 flex items-center gap-3">
+                ProType 
+                <span class="text-xs font-normal text-gray-500 bg-gray-200 dark:bg-gray-800 px-2 py-1 rounded transition-colors">Monkeytype Style</span>
+            </h1>
+            <div class="flex flex-col gap-2">
+                <div class="text-xs text-gray-600 dark:text-gray-500 flex items-center gap-4">
+                    <div class="flex flex-col gap-1.5 w-max">
+                        <span class="bg-blue-100 dark:bg-blue-500/10 text-blue-600 dark:text-blue-400 px-2 py-1 rounded font-bold transition-colors">
+                            Level <span id="current-level-display">1</span>
+                        </span>
+                        <div class="w-full h-1.5 bg-gray-300 dark:bg-gray-800 rounded-full overflow-hidden" title="Progress to next level (5 sets of 95%+ acc & 10+ WPM)">
+                            <div id="level-progress-bar" class="h-full bg-blue-500 transition-all duration-500" style="width: 0%;"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Center: Series Box -->
+        <div id="letter-series-box" class="hidden lg:flex flex-wrap justify-center gap-1 px-1 py-1.5 rounded-lg border border-gray-200 dark:border-gray-800 bg-gray-50 dark:bg-gray-900/40 shadow-sm font-bold text-sm tracking-wide transition-colors max-w-md w-full mx-4">
+            <!-- Letters injected dynamically -->
+        </div>
+
+        <div class="flex items-center gap-6 sm:gap-10">
+            <div class="flex gap-6 sm:gap-10">
+                <div class="flex flex-col items-center">
+                    <span class="text-[0.65rem] text-gray-500 mb-1 uppercase tracking-widest font-bold">WPM</span>
+                    <span id="live-wpm" class="text-3xl font-bold text-emerald-600 dark:text-emerald-400">0</span>
+                </div>
+                <div class="flex flex-col items-center">
+                    <span class="text-[0.65rem] text-gray-500 mb-1 uppercase tracking-widest font-bold">High WPM</span>
+                    <span id="high-wpm" class="text-3xl font-bold text-blue-600 dark:text-blue-400 transition-all duration-200">0</span>
+                </div>
+                <div class="flex flex-col items-center">
+                    <span class="text-[0.65rem] text-gray-500 mb-1 uppercase tracking-widest font-bold">Acc</span>
+                    <span id="live-acc" class="text-3xl font-bold text-gray-700 dark:text-gray-300">100%</span>
+                </div>
+            </div>
+            
+            <!-- Fullscreen Icon -->
+            <button id="fullscreen-btn" class="p-2 rounded-full hover:bg-gray-200 dark:hover:bg-gray-800 transition text-gray-600 dark:text-gray-400 ml-2" title="Toggle Fullscreen">
+                <svg id="fs-enter-icon" xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3"></path></svg>
+                <svg id="fs-exit-icon" class="hidden" xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 3v3a2 2 0 0 1-2 2H3m18 0h-3a2 2 0 0 1-2-2V3m0 18v-3a2 2 0 0 1 2-2h3M3 16h3a2 2 0 0 1 2 2v3"></path></svg>
+            </button>
+            
+            <!-- Settings Icon -->
+            <button id="settings-btn" class="p-2 rounded-full hover:bg-gray-200 dark:hover:bg-gray-800 transition text-gray-600 dark:text-gray-400 mr-2" title="Settings">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>
+            </button>
+        </div>
+    </header>
+
+    <main class="flex-grow flex flex-col items-center justify-center p-6 w-full max-w-5xl mx-auto">
+        <!-- Typing Area -->
+        <div class="w-full flex-grow flex items-center relative min-h-[160px]">
+            <div id="typing-container" class="text-3xl leading-[1.6] tracking-wide text-gray-500 dark:text-[#4b5563] font-medium whitespace-pre-wrap select-none w-full outline-none transition-opacity duration-300 opacity-0" tabindex="0">
+                <!-- Words injected via JS -->
+            </div>
+        </div>
+
+        <!-- Keyboard Visualizer -->
+        <!-- Finger classes: lp (left pinky), lr (left ring), lm (left mid), li (left index), ri (right index), rm (right mid), rr (right ring), rp (right pinky), th (thumb) -->
+        <div id="keyboard" class="mt-auto mb-10 w-full max-w-4xl flex flex-col gap-2 p-6 rounded-2xl bg-white dark:bg-[#1a1a1a] border border-gray-200 dark:border-gray-800 shadow-xl dark:shadow-2xl transition-colors">
+            <!-- Row 1 -->
+            <div class="flex gap-2 justify-center">
+                <div class="key lp" data-key="q">Q</div>
+                <div class="key lr" data-key="w">W</div>
+                <div class="key lm" data-key="e">E</div>
+                <div class="key li" data-key="r">R</div>
+                <div class="key li" data-key="t">T</div>
+                <div class="key ri" data-key="y">Y</div>
+                <div class="key ri" data-key="u">U</div>
+                <div class="key rm" data-key="i">I</div>
+                <div class="key rr" data-key="o">O</div>
+                <div class="key rp" data-key="p">P</div>
+            </div>
+            <!-- Row 2 -->
+            <div class="flex gap-2 justify-center pr-4">
+                <div class="key lp" data-key="a">A</div>
+                <div class="key lr" data-key="s">S</div>
+                <div class="key lm" data-key="d">D</div>
+                <div class="key li" data-key="f">F</div>
+                <div class="key li" data-key="g">G</div>
+                <div class="key ri" data-key="h">H</div>
+                <div class="key ri" data-key="j">J</div>
+                <div class="key rm" data-key="k">K</div>
+                <div class="key rr" data-key="l">L</div>
+            </div>
+            <!-- Row 3 -->
+            <div class="flex gap-2 justify-center pr-12">
+                <div class="key lp" data-key="z">Z</div>
+                <div class="key lr" data-key="x">X</div>
+                <div class="key lm" data-key="c">C</div>
+                <div class="key li" data-key="v">V</div>
+                <div class="key li" data-key="b">B</div>
+                <div class="key ri" data-key="n">N</div>
+                <div class="key rm" data-key="m">M</div>
+            </div>
+            <!-- Row Space -->
+            <div class="flex gap-2 justify-center mt-2">
+                <div class="key th w-80" data-key=" ">SPACE</div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Settings Modal -->
+    <div id="settings-modal" class="fixed inset-0 bg-black/40 dark:bg-black/80 z-50 hidden flex items-center justify-center backdrop-blur-sm transition-all duration-300 opacity-0 pointer-events-none">
+        <div class="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 p-8 rounded-2xl max-w-sm w-full shadow-2xl transform scale-95 transition-transform duration-300 relative" id="settings-modal-content">
+            
+            <button id="close-settings-x" class="absolute top-5 right-5 text-gray-400 hover:text-gray-800 dark:hover:text-white transition">
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+            </button>
+            <h2 class="text-2xl font-bold mb-6 text-gray-900 dark:text-white">Settings</h2>
+            
+            <div class="flex flex-col gap-4">
+                <div class="flex items-center justify-between bg-gray-100 dark:bg-gray-800/50 p-3 rounded-lg border border-transparent dark:border-gray-700">
+                    <span class="font-medium text-gray-800 dark:text-gray-200">Custom Keys</span>
+                    <label class="relative inline-flex items-center cursor-pointer">
+                        <input type="checkbox" id="auto-unlock-toggle" class="sr-only peer">
+                        <div class="w-11 h-6 bg-gray-300 dark:bg-gray-700 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-500"></div>
+                    </label>
+                </div>
+
+                <div class="flex items-center justify-between bg-gray-100 dark:bg-gray-800/50 p-3 rounded-lg border border-transparent dark:border-gray-700">
+                    <span class="font-medium text-gray-800 dark:text-gray-200">Typing Sound</span>
+                    <label class="relative inline-flex items-center cursor-pointer">
+                        <input type="checkbox" id="sound-toggle" class="sr-only peer">
+                        <div class="w-11 h-6 bg-gray-300 dark:bg-gray-700 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-emerald-500"></div>
+                    </label>
+                </div>
+
+                <div class="flex items-center justify-between bg-gray-100 dark:bg-gray-800/50 p-3 rounded-lg border border-transparent dark:border-gray-700">
+                    <span class="font-medium text-gray-800 dark:text-gray-200">Dark Theme</span>
+                    <label class="relative inline-flex items-center cursor-pointer">
+                        <input type="checkbox" id="theme-toggle" class="sr-only peer">
+                        <div class="w-11 h-6 bg-gray-300 dark:bg-gray-700 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-indigo-500"></div>
+                    </label>
+                </div>
+
+                <div class="mt-4 pt-4 border-t border-gray-200 dark:border-gray-700">
+                    <button id="reset-data-btn" class="w-full bg-red-100 dark:bg-red-900/30 text-red-600 dark:text-red-400 font-bold py-3 mx-auto px-4 rounded-lg hover:bg-red-200 dark:hover:bg-red-900/50 transition">
+                        Reset All Progress
+                    </button>
+                </div>
+            </div>
+
+            <button id="close-settings" class="mt-6 bg-gray-800 dark:bg-white text-white dark:text-gray-900 px-6 py-3 rounded-lg font-bold w-full hover:bg-gray-700 dark:hover:bg-gray-200 transition">Save & Close</button>
+        </div>
+    </div>
+
+    <script type="module" src="js/app.js"></script>
+</body>
+</html>
