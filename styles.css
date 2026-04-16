@@ -1,0 +1,165 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+.word {
+    display: inline-block;
+    margin-right: 0.6em; /* monkeytype spacing */
+    margin-bottom: 0.4em;
+    transition: color 0.1s;
+}
+
+.word.error {
+    text-decoration: underline;
+    text-decoration-color: #ef4444; /* red-500 */
+}
+
+.letter {
+    position: relative;
+    border-radius: 2px;
+}
+
+/* Base states: light mode has darker text for correct/wrong readability */
+.letter.correct { color: #6b7280; /* gray-500 */ }
+.letter.incorrect { color: #ef4444; /* red-500 */ }
+
+.dark .letter.correct { color: #f3f4f6; /* gray-100 */ }
+.dark .letter.incorrect { color: #ef4444; /* red-500 */ }
+
+/* Monkeytype style cursor */
+.cursor-active.letter::before {
+    content: '';
+    position: absolute;
+    left: -2px; /* depending on font, standard caret looks like this */
+    top: 10%;
+    bottom: 10%;
+    width: 3px;
+    background-color: #fbbf24; /* amber-400 */
+    animation: blink 1s step-end infinite;
+    border-radius: 2px;
+}
+
+/* Cursor on the space position */
+.cursor-right.letter::after {
+    content: '';
+    position: absolute;
+    right: -4px;
+    top: 10%;
+    bottom: 10%;
+    width: 3px;
+    background-color: #fbbf24; /* amber-400 */
+    animation: blink 1s step-end infinite;
+    border-radius: 2px;
+}
+
+@keyframes blink {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0; }
+}
+
+.shake {
+    animation: shake 0.3s cubic-bezier(.36,.07,.19,.97) both;
+}
+
+@keyframes shake {
+    10%, 90% { transform: translate3d(-1px, 0, 0); }
+    20%, 80% { transform: translate3d(2px, 0, 0); }
+    30%, 50%, 70% { transform: translate3d(-4px, 0, 0); }
+    40%, 60% { transform: translate3d(4px, 0, 0); }
+}
+
+/* --- Keyboard CSS logic --- */
+.key {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 3.2rem;
+    height: 3.2rem;
+    border-radius: 0.4rem;
+    font-size: 1.125rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    transition: all 0.05s ease-out;
+    opacity: 0.4; /* Locked opacity */
+    cursor: pointer;
+    
+    /* Light theme defaults */
+    background-color: #e5e7eb; /* gray-200 default light */
+    border-top: 1px solid #f3f4f6; /* gray-100 */
+    border-left: 1px solid #f3f4f6; /* gray-100 */
+    border-right: 1px solid #f3f4f6; /* gray-100 */
+    border-bottom: 4px solid #d1d5db; /* gray-300 */
+    color: #4b5563; /* dim text */
+}
+
+/* Dark mode overrides */
+.dark .key {
+    background-color: #222; /* very dark default */
+    border-bottom: 4px solid #111;
+    border-top: 1px solid #333;
+    border-left: 1px solid #333;
+    border-right: 1px solid #333;
+    color: #444; /* dim text */
+}
+
+/* When unlocked, fully visible */
+.key.unlocked {
+    opacity: 1;
+}
+
+/* Finger styling overrides for UNLOCKED keys Light Mode */
+/* lp: Pink, lr: Blue, lm: Emerald, li: Purple, ri: Orange, rm: Teal, rr: Amber, rp: Red, th: Gray */
+.key.unlocked.lp { background-color: #fbcfe8; color: #db2777; border-bottom-color: #f472b6; }
+.key.unlocked.lr { background-color: #bfdbfe; color: #2563eb; border-bottom-color: #93c5fd; }
+.key.unlocked.lm { background-color: #a7f3d0; color: #059669; border-bottom-color: #6ee7b7; }
+.key.unlocked.li { background-color: #ddd6fe; color: #7c3aed; border-bottom-color: #c4b5fd; }
+.key.unlocked.ri { background-color: #fed7aa; color: #ea580c; border-bottom-color: #fdba74; }
+.key.unlocked.rm { background-color: #99f6e4; color: #0d9488; border-bottom-color: #5eead4; }
+.key.unlocked.rr { background-color: #fde68a; color: #d97706; border-bottom-color: #fcd34d; }
+.key.unlocked.rp { background-color: #fecaca; color: #dc2626; border-bottom-color: #fca5a5; }
+.key.unlocked.th { background-color: #f3f4f6; color: #4b5563; border-bottom-color: #e5e7eb; }
+
+/* Finger styling overrides for UNLOCKED keys Dark Mode */
+.dark .key.unlocked.lp { background-color: #271424; color: #f472b6; border-bottom-color: #1a0f18; }
+.dark .key.unlocked.lr { background-color: #162032; color: #60a5fa; border-bottom-color: #0f1524; }
+.dark .key.unlocked.lm { background-color: #102a20; color: #34d399; border-bottom-color: #081d16; }
+.dark .key.unlocked.li { background-color: #231836; color: #a78bfa; border-bottom-color: #160f24; }
+.dark .key.unlocked.ri { background-color: #2b1d12; color: #fb923c; border-bottom-color: #1e130c; }
+.dark .key.unlocked.rm { background-color: #102928; color: #2dd4bf; border-bottom-color: #0a1d1b; }
+.dark .key.unlocked.rr { background-color: #2b2412; color: #fcd34d; border-bottom-color: #1e190b; }
+.dark .key.unlocked.rp { background-color: #2a1212; color: #f87171; border-bottom-color: #1d0b0b; }
+.dark .key.unlocked.th { background-color: #222; color: #e5e7eb; border-bottom-color: #111; }
+
+/* Pressed states common config */
+.key.pressed {
+    border-bottom-width: 0 !important;
+    transform: translateY(4px);
+    opacity: 1 !important;
+    z-index: 10;
+}
+
+/* Pressed states Light */
+.key.pressed.lp { background-color: #ec4899; color: #fff; }
+.key.pressed.lr { background-color: #3b82f6; color: #fff; }
+.key.pressed.lm { background-color: #10b981; color: #fff; }
+.key.pressed.li { background-color: #8b5cf6; color: #fff; }
+.key.pressed.ri { background-color: #f97316; color: #fff; }
+.key.pressed.rm { background-color: #14b8a6; color: #fff; }
+.key.pressed.rr { background-color: #f59e0b; color: #fff; }
+.key.pressed.rp { background-color: #ef4444; color: #fff; }
+.key.pressed.th { background-color: #d1d5db; color: #111; }
+
+/* Pressed states Dark */
+.dark .key.pressed.lp { background-color: #ec4899; color: #fff;}
+.dark .key.pressed.lr { background-color: #3b82f6; color: #fff;}
+.dark .key.pressed.lm { background-color: #10b981; color: #fff;}
+.dark .key.pressed.li { background-color: #8b5cf6; color: #fff;}
+.dark .key.pressed.ri { background-color: #f97316; color: #fff;}
+.dark .key.pressed.rm { background-color: #14b8a6; color: #fff;}
+.dark .key.pressed.rr { background-color: #f59e0b; color: #fff;}
+.dark .key.pressed.rp { background-color: #ef4444; color: #fff;}
+.dark .key.pressed.th { background-color: #9ca3af; color: #111;}
+
+.transition-opacity {
+    transition: opacity 0.3s ease-in-out;
+}
