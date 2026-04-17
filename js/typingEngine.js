@@ -166,13 +166,30 @@ export class TypingEngine {
         }
 
         if (e.key.length === 1 && this.currentLetterIndex < word.length) {
-            // BLOCKING MODE: If there is an existing mistake in the current word, stop typing further
-            const hasError = Array.from(currentWordData.letterEls).some(el => el.classList.contains('incorrect'));
-            if (hasError) {
-                currentWordData.wordEl.classList.remove('shake');
-                void currentWordData.wordEl.offsetWidth; // trigger reflow
-                currentWordData.wordEl.classList.add('shake');
-                return;
+            // AUTO-FIX & BLOCKING LOGIC:
+            // If there is an existing mistake in the current word, check if this key fixes it.
+            const lastIndex = this.currentLetterIndex - 1;
+            if (lastIndex >= 0) {
+                const lastLetterEl = currentWordData.letterEls[lastIndex];
+                if (lastLetterEl.classList.contains('incorrect')) {
+                    const expectedPrevChar = word[lastIndex];
+                    if (e.key.toLowerCase() === expectedPrevChar.toLowerCase()) {
+                        // FIX: User typed the correct key for the previous mistake
+                        this.playClick();
+                        lastLetterEl.classList.remove('incorrect');
+                        lastLetterEl.classList.add('correct');
+                        this.correctCharacters++;
+                        this.updateCursor();
+                        this.triggerProgress();
+                        return; // Fixed the previous error, wait for next key for current position
+                    } else {
+                        // BLOCK: Still the wrong key
+                        currentWordData.wordEl.classList.remove('shake');
+                        void currentWordData.wordEl.offsetWidth; // trigger reflow
+                        currentWordData.wordEl.classList.add('shake');
+                        return;
+                    }
+                }
             }
 
             this.playClick();
