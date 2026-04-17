@@ -166,6 +166,15 @@ export class TypingEngine {
         }
 
         if (e.key.length === 1 && this.currentLetterIndex < word.length) {
+            // BLOCKING MODE: If there is an existing mistake in the current word, stop typing further
+            const hasError = Array.from(currentWordData.letterEls).some(el => el.classList.contains('incorrect'));
+            if (hasError) {
+                currentWordData.wordEl.classList.remove('shake');
+                void currentWordData.wordEl.offsetWidth; // trigger reflow
+                currentWordData.wordEl.classList.add('shake');
+                return;
+            }
+
             this.playClick();
             this.totalKeystrokes++;
             const expectedChar = word[this.currentLetterIndex];
