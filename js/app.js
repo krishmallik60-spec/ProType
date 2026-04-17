@@ -24,6 +24,10 @@ document.addEventListener('DOMContentLoaded', () => {
     const fsEnterIcon = document.getElementById('fs-enter-icon');
     const fsExitIcon = document.getElementById('fs-exit-icon');
     const closeSettingsX = document.getElementById('close-settings-x');
+    const guideBtn = document.getElementById('guide-btn');
+    const guideModal = document.getElementById('guide-modal');
+    const closeGuideBtn = document.getElementById('close-guide-btn');
+    const closeGuideX = document.getElementById('close-guide-x');
 
     const settingsKey = 'proTypeSettings_v2';
     const savedSettings = JSON.parse(localStorage.getItem(settingsKey)) || {};
@@ -109,10 +113,33 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function hideSettings() {
         settingsModal.classList.add('opacity-0');
+        settingsModal.querySelector('#settings-modal-content').classList.add('scale-95');
         setTimeout(() => {
             settingsModal.classList.add('hidden', 'pointer-events-none');
         }, 300);
     }
+
+    // Guide Modal interactions
+    guideBtn.addEventListener('click', () => {
+        guideModal.classList.remove('hidden', 'pointer-events-none');
+        void guideModal.offsetWidth;
+        guideModal.classList.remove('opacity-0');
+        guideModal.querySelector('#guide-modal-content').classList.remove('scale-95');
+    });
+
+    const hideGuide = () => {
+        guideModal.classList.add('opacity-0');
+        guideModal.querySelector('#guide-modal-content').classList.add('scale-95');
+        setTimeout(() => {
+            guideModal.classList.add('hidden', 'pointer-events-none');
+        }, 300);
+    };
+
+    closeGuideBtn.addEventListener('click', hideGuide);
+    closeGuideX.addEventListener('click', hideGuide);
+    guideModal.addEventListener('click', (e) => {
+        if (e.target === guideModal) hideGuide();
+    });
 
     // Fullscreen Logic
     fullscreenBtn.addEventListener('click', () => {
