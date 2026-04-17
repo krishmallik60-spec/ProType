@@ -13,7 +13,10 @@ document.addEventListener('DOMContentLoaded', () => {
     const displayHighWpm = document.getElementById('high-wpm');
     const levelDisplay = document.getElementById('current-level-display');
     const autoUnlockToggle = document.getElementById('auto-unlock-toggle');
-    const soundToggle = document.getElementById('sound-toggle');
+    const soundTypeSelect = document.getElementById('sound-type-select');
+    const errorSoundTypeSelect = document.getElementById('error-sound-type-select');
+    const symbolsToggle = document.getElementById('symbols-toggle');
+    const capitalsToggle = document.getElementById('capitals-toggle');
     const settingsBtn = document.getElementById('settings-btn');
     const settingsModal = document.getElementById('settings-modal');
     const closeSettings = document.getElementById('close-settings');
@@ -32,9 +35,12 @@ document.addEventListener('DOMContentLoaded', () => {
     const settingsKey = 'proTypeSettings_v2';
     const savedSettings = JSON.parse(localStorage.getItem(settingsKey)) || {};
 
-    let soundEnabled = savedSettings.sound === true;
+    let typingSoundType = savedSettings.typingSoundType || 'standard';
+    let errorSoundType = savedSettings.errorSoundType || 'buzz';
+    let includeSymbols = savedSettings.symbols === true;
+    let includeCapitals = savedSettings.capitals === true;
 
-    // Check initial theme logic (Fallback to unforced Light by default unless system specifies Dark, or storage overrides)
+    // Check initial theme logic
     let isDark = false;
     if (savedSettings.theme === 'dark') {
         isDark = true;
@@ -46,31 +52,60 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-    // Init UI toggles
+    // Init UI elements
     autoUnlockToggle.checked = levelManager.getState().autoUnlockMode;
-    soundToggle.checked = soundEnabled;
+    soundTypeSelect.value = typingSoundType;
+    errorSoundTypeSelect.value = errorSoundType;
+    symbolsToggle.checked = includeSymbols;
+    capitalsToggle.checked = includeCapitals;
     themeToggle.checked = isDark;
 
     // Apply the initial computed theme
     if (isDark) document.documentElement.classList.add('dark');
     else document.documentElement.classList.remove('dark');
 
-    soundToggle.addEventListener('change', (e) => {
-        soundEnabled = e.target.checked;
-        savedSettings.sound = soundEnabled;
+    soundTypeSelect.addEventListener('change', (e) => {
+        typingSoundType = e.target.value;
+        savedSettings.typingSoundType = typingSoundType;
         localStorage.setItem(settingsKey, JSON.stringify(savedSettings));
+        // Test sound
+        if (currentEngine) currentEngine.playClick();
     });
 
-    autoUnlockToggle.addEventListener('change', (e) => {
-        levelManager.toggleAutoUnlock(e.target.checked);
-        updateHeader(levelManager);
-        
-        // Regenerate words visually to reflect changes
+    errorSoundTypeSelect.addEventListener('change', (e) => {
+        errorSoundType = e.target.value;
+        savedSettings.errorSoundType = errorSoundType;
+        localStorage.setItem(settingsKey, JSON.stringify(savedSettings));
+        // Test sound
+        if (currentEngine) currentEngine.playError();
+    });
+
+    symbolsToggle.addEventListener('change', (e) => {
+        includeSymbols = e.target.checked;
+        savedSettings.symbols = includeSymbols;
+        localStorage.setItem(settingsKey, JSON.stringify(savedSettings));
+        refreshRound();
+    });
+
+    capitalsToggle.addEventListener('change', (e) => {
+        includeCapitals = e.target.checked;
+        savedSettings.capitals = includeCapitals;
+        localStorage.setItem(settingsKey, JSON.stringify(savedSettings));
+        refreshRound();
+    });
+
+    function refreshRound() {
         container.classList.add('opacity-0');
         setTimeout(() => {
             if (currentEngine) currentEngine.stop();
             startRound();
         }, 300);
+    }
+
+    autoUnlockToggle.addEventListener('change', (e) => {
+        levelManager.toggleAutoUnlock(e.target.checked);
+        updateHeader(levelManager);
+        refreshRound();
     });
 
     // Handle clicks on the visual keyboard for manual custom keys
@@ -192,15 +227,19 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function startRound() {
         const wordCount = Math.floor(Math.random() * 6) + 20; // 20 to 25 length
-        const words = generateWords(wordCount, levelManager);
+        const words = generateWords(wordCount, levelManager, {
+            includeSymbols: includeSymbols,
+            includeCapitals: includeCapitals
+        });
         
         // Remove transparent state
         container.classList.remove('opacity-0');
         
-        // We will pass the soundEnabled getter dynamically
-        const getSoundState = () => soundEnabled;
+        // Dynamically get state
+        const getTypingSound = () => typingSoundType;
+        const getErrorSound = () => errorSoundType;
         
-        currentEngine = new TypingEngine(words, levelManager, onRoundComplete, onProgress, getSoundState);
+        currentEngine = new TypingEngine(words, levelManager, onRoundComplete, onProgress, getTypingSound, getErrorSound);
         currentEngine.start();
         
         updateHeader(levelManager);
