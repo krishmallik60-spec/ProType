@@ -3,22 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ProType - Typing Practice</title>
-    <!-- Favicon -->
-<link rel="icon" type="image/jpeg" href="/fav.jpg">
-
-<!-- Open Graph (for WhatsApp, Discord, etc.) -->
-<meta property="og:title" content="ProType - Minimalist Typing">
-<meta property="og:description" content="Improve your typing speed with a clean, distraction-free typing practice platform.">
-<meta property="og:image" content="https://protypee.vercel.app/fav.jpg">
-<meta property="og:url" content="https://protypee.vercel.app/">
-<meta property="og:type" content="website">
-
-<!-- Twitter Card -->
-<meta name="twitter:card" content="summary_large_image">
-<meta name="twitter:title" content="ProType - Minimalist Typing">
-<meta name="twitter:description" content="Improve your typing speed with a clean, distraction-free typing practice platform.">
-<meta name="twitter:image" content="https://protypee.vercel.app/fav.jpg">
+    <title>ProType - Minimalist Typing</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
         tailwind.config = {
@@ -34,7 +19,7 @@
         <div class="flex flex-col gap-2">
             <h1 class="text-2xl font-bold text-gray-900 dark:text-gray-100 flex items-center gap-3">
                 ProType 
-                <span class="text-xs font-normal text-gray-500 bg-gray-200 dark:bg-gray-800 px-2 py-1 rounded transition-colors">Master your speed.</span>
+                <span class="text-xs font-normal text-gray-500 bg-gray-200 dark:bg-gray-800 px-2 py-1 rounded transition-colors">Monkeytype Style</span>
             </h1>
             <div class="flex flex-col gap-2">
                 <div class="text-xs text-gray-600 dark:text-gray-500 flex items-center gap-4">
@@ -87,6 +72,10 @@
     <main class="flex-grow flex flex-col items-center justify-center p-6 w-full max-w-5xl mx-auto">
         <!-- Typing Area -->
         <div class="w-full flex-grow flex items-center relative min-h-[160px]">
+            <!-- Guide Trigger -->
+            <button id="guide-btn" class="absolute top-0 right-0 p-2 text-gray-400 hover:text-blue-500 transition-all duration-300 z-10" title="User Guide">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"></path><line x1="12" y1="17" x2="12.01" y2="17"></line></svg>
+            </button>
             <div id="typing-container" class="text-3xl leading-[1.6] tracking-wide text-gray-500 dark:text-[#4b5563] font-medium whitespace-pre-wrap select-none w-full outline-none transition-opacity duration-300 opacity-0" tabindex="0">
                 <!-- Words injected via JS -->
             </div>
@@ -179,6 +168,53 @@
             </div>
 
             <button id="close-settings" class="mt-6 bg-gray-800 dark:bg-white text-white dark:text-gray-900 px-6 py-3 rounded-lg font-bold w-full hover:bg-gray-700 dark:hover:bg-gray-200 transition">Save & Close</button>
+        </div>
+    </div>
+
+    <!-- Guide Modal -->
+    <div id="guide-modal" class="fixed inset-0 bg-black/40 dark:bg-black/80 z-50 hidden flex items-center justify-center backdrop-blur-sm transition-all duration-300 opacity-0 pointer-events-none">
+        <div class="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 p-8 rounded-2xl max-w-2xl w-full shadow-2xl transform scale-95 transition-transform duration-300 relative max-h-[90vh] overflow-y-auto" id="guide-modal-content">
+            
+            <button id="close-guide-x" class="absolute top-5 right-5 text-gray-400 hover:text-gray-800 dark:hover:text-white transition">
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+            </button>
+            <h2 class="text-3xl font-bold mb-6 text-gray-900 dark:text-white flex items-center gap-2">
+                User Guide
+            </h2>
+            
+            <div class="space-y-6 text-gray-600 dark:text-gray-400 leading-relaxed">
+                <section>
+                    <h3 class="text-xl font-bold text-gray-800 dark:text-gray-200 mb-2">Progressive Levels</h3>
+                    <p>ProType uses a progressive learning system designed to build muscle memory alphabetically. You start with the most frequent letters and gradually unlock more as you master them.</p>
+                    <ul class="list-disc list-inside mt-3 space-y-1 ml-2">
+                        <li><strong>Level 1:</strong> Starts with basic keys: <span class="bg-gray-100 dark:bg-gray-800 px-1.5 py-0.5 rounded text-blue-500 font-bold">e, n, i, a, r</span>.</li>
+                        <li><strong>Unlocking:</strong> Each subsequent level adds one new character to your practice pool.</li>
+                        <li><strong>How to Level Up:</strong> Complete <span class="text-emerald-500 font-bold">5 sets</span> with at least <span class="text-emerald-500 font-bold">95% accuracy</span> and <span class="text-emerald-500 font-bold">10+ WPM</span>.</li>
+                    </ul>
+                </section>
+
+                <section>
+                    <h3 class="text-xl font-bold text-gray-800 dark:text-gray-200 mb-2">Custom Keys Practice</h3>
+                    <p>Want to focus on specific keys? You can switch to custom mode in the settings.</p>
+                    <ul class="list-disc list-inside mt-2 space-y-1 ml-2">
+                        <li>Toggle <strong>"Custom Keys"</strong> in the settings modal.</li>
+                        <li>Once enabled, simply <strong>click on any key</strong> on the virtual keyboard below to lock or unlock it.</li>
+                        <li>You must have at least 5 letters unlocked for the generator to work.</li>
+                    </ul>
+                </section>
+
+                <section>
+                    <h3 class="text-xl font-bold text-gray-800 dark:text-gray-200 mb-2">Typing Rules</h3>
+                    <p>To ensure perfect muscle memory, ProType follows strict rules:</p>
+                    <ul class="list-disc list-inside mt-2 space-y-1 ml-2">
+                        <li>If you make a mistake, typing is <strong>blocked</strong>.</li>
+                        <li>You <strong>must fix</strong> the error using Backspace before you can continue typing.</li>
+                        <li>Words are automatically submitted once you complete the last letter perfectly.</li>
+                    </ul>
+                </section>
+            </div>
+
+            <button id="close-guide-btn" class="mt-8 bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg font-bold w-full transition shadow-lg shadow-blue-500/20">Got it!</button>
         </div>
     </div>
 
