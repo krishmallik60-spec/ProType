@@ -21,10 +21,9 @@
 
 /* Base states: light mode has darker text for correct/wrong readability */
 .letter.correct { color: #6b7280; /* gray-500 */ }
-.letter.incorrect { color: #ef4444; /* red-500 */ }
-
+.letter.incorrect, .letter.corrected { color: #ef4444; /* red-500 */ }
 .dark .letter.correct { color: #f3f4f6; /* gray-100 */ }
-.dark .letter.incorrect { color: #ef4444; /* red-500 */ }
+.dark .letter.incorrect, .dark .letter.corrected { color: #ef4444; /* red-500 */ }
 
 /* Monkeytype style cursor */
 .cursor-active.letter::before {
