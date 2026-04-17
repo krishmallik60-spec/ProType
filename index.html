@@ -73,7 +73,7 @@
         <!-- Typing Area -->
         <div class="w-full flex-grow flex items-center relative min-h-[160px]">
             <!-- Guide Trigger -->
-            <button id="guide-btn" class="absolute top-0 right-0 p-2 text-gray-400 hover:text-blue-500 transition-all duration-300 z-10" title="User Guide">
+            <button id="guide-btn" class="fixed bottom-8 right-8 p-3 rounded-full bg-white dark:bg-[#1a1a1a] shadow-xl border border-gray-200 dark:border-gray-800 text-gray-400 hover:text-blue-500 hover:scale-110 active:scale-95 transition-all duration-300 z-50" title="User Guide">
                 <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"></path><line x1="12" y1="17" x2="12.01" y2="17"></line></svg>
             </button>
             <div id="typing-container" class="text-3xl leading-[1.6] tracking-wide text-gray-500 dark:text-[#4b5563] font-medium whitespace-pre-wrap select-none w-full outline-none transition-opacity duration-300 opacity-0" tabindex="0">
@@ -207,8 +207,8 @@
                     <h3 class="text-xl font-bold text-gray-800 dark:text-gray-200 mb-2">Typing Rules</h3>
                     <p>To ensure perfect muscle memory, ProType follows strict rules:</p>
                     <ul class="list-disc list-inside mt-2 space-y-1 ml-2">
-                        <li>If you make a mistake, typing is <strong>blocked</strong>.</li>
-                        <li>You <strong>must fix</strong> the error using Backspace before you can continue typing.</li>
+                        <li>If you make a mistake, further typing is <strong>blocked</strong> until it's fixed.</li>
+                        <li><strong>Auto-Fix:</strong> You can fix a mistake by simply typing the <strong>correct key</strong>, or by using Backspace.</li>
                         <li>Words are automatically submitted once you complete the last letter perfectly.</li>
                     </ul>
                 </section>
