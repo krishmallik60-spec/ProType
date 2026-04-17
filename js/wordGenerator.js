@@ -137,9 +137,20 @@ const EXTRA_PROGRESSION_WORDS = [
     "jar", "jair", "jane", "jinn", "jin"
 ];
 
-export function generateWords(count, levelManager) {
+const SYMBOL_WORDS = [
+    // Simple words (e, n, i, a, r)
+    "are.", "rain,", "near;", "area:", "earn'", "air.", "era,", "near.", "rain.", "in.", "an.",
+    // More complex
+    "it's", "don't", "can't", "won't", "he's", "she's", "they're", "we're", "user.", "next.", "end.", "stop.", 
+    "yes,", "no,", "well,", "however,", "then,", "stay;", "look;", "wait;", "go;", "run;", "here's", "there's", 
+    "note:", "list:", "time:", "name:", "said:", "found:", "day.", "night.", "now.", "then.", "more,", "less,", 
+    "high,", "low,", "point.", "page.", "home.", "move.", "try.", "kind.", "hand."
+];
+
+export function generateWords(count, levelManager, options = {}) {
     const letters = levelManager.getUnlockedLetters();
     const letterSet = new Set(letters);
+    const { includeSymbols = false, includeCapitals = false } = options;
     
     // Find the absolute newest letter unlocked if we are not in auto mode
     const state = levelManager.getState();
@@ -149,7 +160,9 @@ export function generateWords(count, levelManager) {
     }
     
     // Filter the massively expanded dataset
-    let allValid = [...new Set([...MASTER_WORDS, ...EXTRA_PROGRESSION_WORDS])].filter(w => {
+    let basePool = [...new Set([...MASTER_WORDS, ...EXTRA_PROGRESSION_WORDS])];
+    
+    let allValid = basePool.filter(w => {
         return [...w].every(c => letterSet.has(c));
     });
 
@@ -172,35 +185,48 @@ export function generateWords(count, levelManager) {
     for (let i = 0; i < count; i++) {
         let candidates = allValid;
         
-        // 50% chance to force a word featuring the brand new unlocked letter
-        if (newestLetterPool.length > 0 && Math.random() < 0.5) {
+        // 1. Symbol handling
+        if (includeSymbols && Math.random() < 0.4) { // 40% chance of symbol-word
+            const validSymbols = SYMBOL_WORDS.filter(w => {
+                // Check if all letters are unlocked
+                const pureLetters = w.toLowerCase().replace(/[^a-z]/g, '');
+                return [...pureLetters].every(c => letterSet.has(c));
+            });
+            if (validSymbols.length > 0) candidates = validSymbols;
+        } 
+        
+        // 2. New Letter handling
+        if (candidates === allValid && newestLetterPool.length > 0 && Math.random() < 0.5) {
             const unusedNew = newestLetterPool.filter(w => !usedWords.has(w));
             if (unusedNew.length > 0) candidates = unusedNew;
         }
-        // otherwise, 30% chance to favor struggled letters
-        else if (strugglingLetters.length > 0 && Math.random() < 0.3) {
+        // 3. Struggle handling
+        else if (candidates === allValid && strugglingLetters.length > 0 && Math.random() < 0.3) {
             const unusedHard = allValid.filter(w => strugglingLetters.some(sl => w.includes(sl)) && !usedWords.has(w));
             if (unusedHard.length > 0) candidates = unusedHard;
         }
 
-        // Try to only pick words not yet used in this set
         let available = candidates.filter(w => !usedWords.has(w));
-        
-        // If the targeted pool is exhausted, fallback to any unused word
         if (available.length === 0) {
-            available = allValid.filter(w => !usedWords.has(w));
-        }
-        
-        // If the ENTIRE dictionary of unused words is exhausted, allow repetitions
-        if (available.length === 0) {
-            available = allValid;
+            available = candidates.length > 0 ? candidates : allValid;
         }
 
         const chosenIndex = Math.floor(Math.random() * available.length);
-        const chosenWord = available[chosenIndex];
+        let word = available[chosenIndex];
         
-        selected.push(chosenWord);
-        usedWords.add(chosenWord);
+        // Final transformation: Capitals
+        if (includeCapitals && Math.random() < 0.3) {
+            if (Math.random() < 0.7) {
+                // Title Case: Apple
+                word = word.charAt(0).toUpperCase() + word.slice(1);
+            } else {
+                // ALL CAPS: APPLE
+                word = word.toUpperCase();
+            }
+        }
+        
+        selected.push(word);
+        usedWords.add(word.toLowerCase());
     }
     
     return selected;
