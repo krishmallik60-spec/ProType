@@ -1,10 +1,11 @@
 export class TypingEngine {
-    constructor(words, levelManager, onRoundComplete, onProgress, isSoundEnabled) {
+    constructor(words, levelManager, onRoundComplete, onProgress, getTypingSoundType, getErrorSoundType) {
         this.words = words;
         this.levelManager = levelManager;
         this.onRoundComplete = onRoundComplete;
         this.onProgress = onProgress;
-        this.isSoundEnabled = isSoundEnabled;
+        this.getTypingSoundType = getTypingSoundType;
+        this.getErrorSoundType = getErrorSoundType;
         
         this.container = document.getElementById('typing-container');
         this.wordEls = [];
@@ -25,7 +26,29 @@ export class TypingEngine {
     }
     
     playClick() {
-        if (!this.isSoundEnabled || !this.isSoundEnabled()) return;
+        const type = this.getTypingSoundType();
+        if (type === 'off') return;
+
+        switch(type) {
+            case 'mechanical': this.beep(300, 0.05, 0.2, 'square'); break;
+            case 'digital': this.beep(800, 0.03, 0.15, 'sawtooth'); break;
+            case 'soft': this.beep(200, 0.06, 0.4, 'triangle'); break;
+            default: this.beep(400, 0.04, 0.3, 'sine');
+        }
+    }
+
+    playError() {
+        const type = this.getErrorSoundType();
+        if (type === 'off') return;
+
+        switch(type) {
+            case 'sharp': this.beep(1200, 0.08, 0.1, 'sine'); break;
+            case 'crunch': this.beep(50, 0.15, 0.2, 'sawtooth'); break;
+            default: this.beep(150, 0.1, 0.3, 'sine'); // buzz
+        }
+    }
+
+    beep(freq, duration, volume, wave = 'sine') {
         try {
             if (!this.audioCtx) {
                 this.audioCtx = new (window.AudioContext || window.webkitAudioContext)();
@@ -35,18 +58,19 @@ export class TypingEngine {
             const osc = this.audioCtx.createOscillator();
             const gainNode = this.audioCtx.createGain();
             
-            osc.type = 'sine';
-            osc.frequency.setValueAtTime(400, this.audioCtx.currentTime);     
-            osc.frequency.exponentialRampToValueAtTime(100, this.audioCtx.currentTime + 0.04);
+            osc.type = wave;
+            osc.frequency.setValueAtTime(freq, this.audioCtx.currentTime);     
+            // Gentle ramp down to avoid popping but stay audible
+            osc.frequency.exponentialRampToValueAtTime(freq * 0.8, this.audioCtx.currentTime + duration);
 
-            gainNode.gain.setValueAtTime(0.3, this.audioCtx.currentTime);
-            gainNode.gain.exponentialRampToValueAtTime(0.01, this.audioCtx.currentTime + 0.04);
+            gainNode.gain.setValueAtTime(volume, this.audioCtx.currentTime);
+            gainNode.gain.exponentialRampToValueAtTime(0.01, this.audioCtx.currentTime + duration);
 
             osc.connect(gainNode);
             gainNode.connect(this.audioCtx.destination);
 
             osc.start();
-            osc.stop(this.audioCtx.currentTime + 0.04);
+            osc.stop(this.audioCtx.currentTime + duration);
         } catch(e) {}
     }
 
@@ -182,7 +206,7 @@ export class TypingEngine {
                 // Check if it's incorrect and hasn't been fixed yet
                 if (lastLetterEl.classList.contains('incorrect') && !lastLetterEl.classList.contains('corrected')) {
                     const expectedPrevChar = word[lastIndex];
-                    if (e.key.toLowerCase() === expectedPrevChar.toLowerCase()) {
+                    if (e.key === expectedPrevChar) {
                         // FIX: User typed the correct key for the previous mistake
                         this.playClick();
                         // Instead of removing incorrect, we add corrected to keep it red but allow progress
@@ -193,6 +217,7 @@ export class TypingEngine {
                         return; 
                     } else {
                         // BLOCK: Still the wrong key
+                        this.playError();
                         currentWordData.wordEl.classList.remove('shake');
                         void currentWordData.wordEl.offsetWidth; // trigger reflow
                         currentWordData.wordEl.classList.add('shake');
@@ -206,11 +231,12 @@ export class TypingEngine {
             const expectedChar = word[this.currentLetterIndex];
             const letterEl = currentWordData.letterEls[this.currentLetterIndex];
             
-            if (e.key.toLowerCase() === expectedChar.toLowerCase()) {
+            if (e.key === expectedChar) {
                 letterEl.classList.add('correct');
                 letterEl.classList.remove('incorrect');
                 this.correctCharacters++;
             } else {
+                this.playError();
                 letterEl.classList.add('incorrect');
                 letterEl.classList.remove('correct');
                 this.mistakes++;
@@ -232,6 +258,7 @@ export class TypingEngine {
             }
             
         } else if (e.key.length === 1 && this.currentLetterIndex >= word.length) {
+            this.playError();
             const activeWrapper = currentWordData.wordEl;
             activeWrapper.classList.remove('shake');
             void activeWrapper.offsetWidth; // trigger reflow
