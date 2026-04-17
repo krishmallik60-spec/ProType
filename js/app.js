@@ -21,6 +21,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const settingsModal = document.getElementById('settings-modal');
     const closeSettings = document.getElementById('close-settings');
     const themeToggle = document.getElementById('theme-toggle');
+    const masteryModeToggle = document.getElementById('mastery-mode-toggle');
     const resetDataBtn = document.getElementById('reset-data-btn');
     const letterSeriesBox = document.getElementById('letter-series-box');
     const fullscreenBtn = document.getElementById('fullscreen-btn');
@@ -59,6 +60,7 @@ document.addEventListener('DOMContentLoaded', () => {
     symbolsToggle.checked = includeSymbols;
     capitalsToggle.checked = includeCapitals;
     themeToggle.checked = isDark;
+    masteryModeToggle.checked = levelManager.state.masteryMode;
 
     // Apply the initial computed theme
     if (isDark) document.documentElement.classList.add('dark');
@@ -104,6 +106,12 @@ document.addEventListener('DOMContentLoaded', () => {
 
     autoUnlockToggle.addEventListener('change', (e) => {
         levelManager.toggleAutoUnlock(e.target.checked);
+        updateHeader(levelManager);
+        refreshRound();
+    });
+
+    masteryModeToggle.addEventListener('change', (e) => {
+        levelManager.toggleMasteryMode(e.target.checked);
         updateHeader(levelManager);
         refreshRound();
     });
@@ -275,14 +283,19 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function updateHeader(lm) {
         const state = lm.getState();
-        levelDisplay.textContent = state.autoUnlockMode ? 'Auto' : state.level;
+        
+        let displayLevel = state.level;
+        if (state.masteryMode) displayLevel = 'Mastery';
+        else if (state.autoUnlockMode) displayLevel = 'Custom';
+        
+        levelDisplay.textContent = displayLevel;
         displayHighWpm.textContent = state.highWPM || '0';
         updateKeyboard(state.unlockedLetters);
 
         // Update progress bar
         const progressBar = document.getElementById('level-progress-bar');
         if (progressBar) {
-            if (state.autoUnlockMode || state.level >= lm.levels.length) {
+            if (state.masteryMode || state.autoUnlockMode || state.level >= lm.levels.length) {
                 progressBar.style.width = '100%';
                 progressBar.classList.add('bg-emerald-500');
                 progressBar.classList.remove('bg-blue-500');
