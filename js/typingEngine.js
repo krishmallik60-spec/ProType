@@ -129,10 +129,18 @@ export class TypingEngine {
                 this.playClick();
                 this.currentLetterIndex--;
                 const letterEl = currentWordData.letterEls[this.currentLetterIndex];
+                
                 if (letterEl.classList.contains('correct')) {
                     this.correctCharacters--;
+                    letterEl.classList.remove('correct');
+                } else if (letterEl.classList.contains('corrected')) {
+                    // It was a mistake but we fixed it. We move back.
+                    // We remove 'corrected' status so it must be fixed again, 
+                    // but we KEEP 'incorrect' so it remains red.
+                    this.correctCharacters--;
+                    letterEl.classList.remove('corrected');
                 }
-                letterEl.classList.remove('correct', 'incorrect');
+
                 this.updateCursor();
                 this.triggerProgress();
             }
@@ -171,17 +179,18 @@ export class TypingEngine {
             const lastIndex = this.currentLetterIndex - 1;
             if (lastIndex >= 0) {
                 const lastLetterEl = currentWordData.letterEls[lastIndex];
-                if (lastLetterEl.classList.contains('incorrect')) {
+                // Check if it's incorrect and hasn't been fixed yet
+                if (lastLetterEl.classList.contains('incorrect') && !lastLetterEl.classList.contains('corrected')) {
                     const expectedPrevChar = word[lastIndex];
                     if (e.key.toLowerCase() === expectedPrevChar.toLowerCase()) {
                         // FIX: User typed the correct key for the previous mistake
                         this.playClick();
-                        lastLetterEl.classList.remove('incorrect');
-                        lastLetterEl.classList.add('correct');
+                        // Instead of removing incorrect, we add corrected to keep it red but allow progress
+                        lastLetterEl.classList.add('corrected');
                         this.correctCharacters++;
                         this.updateCursor();
                         this.triggerProgress();
-                        return; // Fixed the previous error, wait for next key for current position
+                        return; 
                     } else {
                         // BLOCK: Still the wrong key
                         currentWordData.wordEl.classList.remove('shake');
@@ -213,10 +222,11 @@ export class TypingEngine {
             
             // Check auto-transition logic at the very end of the set!
             if (this.currentWordIndex === this.words.length - 1 && this.currentLetterIndex === word.length) {
-                // If there are no incorrect letters in the current word, we finish immediately 
-                // avoiding the need for final spacebar.
-                const hasError = Array.from(currentWordData.letterEls).some(el => el.classList.contains('incorrect'));
-                if (!hasError) {
+                // If there are no pending (un-corrected) incorrect letters, we finish
+                const hasUnfixedError = Array.from(currentWordData.letterEls)
+                    .some(el => el.classList.contains('incorrect') && !el.classList.contains('corrected'));
+                
+                if (!hasUnfixedError) {
                     this.finishRound();
                 }
             }
