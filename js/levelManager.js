@@ -22,6 +22,7 @@ export class LevelManager {
                     letterMistakes: parsed.letterMistakes || {},
                     autoUnlockLetters: parsed.autoUnlockLetters || [],
                     autoUnlockMode: parsed.autoUnlockMode || false,
+                    masteryMode: parsed.masteryMode || false,
                     highWPM: parsed.highWPM || 0
                 };
             } catch(e) {}
@@ -32,6 +33,7 @@ export class LevelManager {
             letterMistakes: {},
             autoUnlockLetters: [],
             autoUnlockMode: false,
+            masteryMode: false,
             highWPM: 0
         };
     }
@@ -41,6 +43,10 @@ export class LevelManager {
     }
 
     getUnlockedLetters() {
+        if (this.state.masteryMode) {
+            // Return all letters in all levels
+            return this.levels.flat();
+        }
         let letters = [];
         if (!this.state.autoUnlockMode) {
             for (let i = 0; i < this.state.level && i < this.levels.length; i++) {
@@ -136,5 +142,9 @@ export class LevelManager {
             }
         }
         return false;
+    }
+    toggleMasteryMode(enabled) {
+        this.state.masteryMode = enabled;
+        this.saveState();
     }
 }
